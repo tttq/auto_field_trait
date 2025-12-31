@@ -1,0 +1,8 @@
+[package]
+name = "auto_field_trait"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = "0.1"
+sea-orm = "1.1.19"
