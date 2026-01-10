@@ -6,7 +6,7 @@ categories = ["database"]
 keywords = ["orm", "sql-database", "spring"]
 
 [dependencies]
-async-trait = "0.1"
+async-trait = "0.1.89"
 sea-orm ={version= "1.1.19", optional = true}
 sqlparser = "0.50"
 regex = "1"

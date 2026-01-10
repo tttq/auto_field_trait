@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sea_orm::{EntityTrait, Select};
+use sea_orm::{DbErr, EntityTrait, InsertResult, Select};
 use std::fmt::Debug;
 
 /// 上下文信息提供者 Trait (开发者需要实现此接口)
@@ -45,6 +45,14 @@ pub trait SoftDeleteExt: EntityTrait {
 
     /// 软删除多个记录
     async fn soft_delete_many<C>(db: &C, ids: &[String]) -> Result<(), sea_orm::DbErr>
+    where
+        C: sea_orm::ConnectionTrait;
+
+    /// 批量更新记录
+    fn batch_update() -> sea_orm::UpdateMany<Self>;
+
+    /// 批量新增
+    async fn batch_insert_many<C>(db: &C, active_models: Vec<Self::ActiveModel>) -> Result<InsertResult<Self::ActiveModel>, DbErr>
     where
         C: sea_orm::ConnectionTrait;
 }
