@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sea_orm::{DbErr, EntityTrait, InsertResult, Select};
+use sea_orm:: Select;
 use std::fmt::Debug;
 
 /// 上下文信息提供者 Trait (开发者需要实现此接口)
@@ -21,7 +21,7 @@ pub trait ContextInfoProvider: Send + Sync + Debug {
 }
 
 /// 查询扩展 Trait (用于查询数据库记录)
-pub trait QueryExtensions: EntityTrait {
+pub trait QueryExtensions: sea_orm::EntityTrait {
     /// 查询未删除的记录
     fn find_not_deleted() -> Select<Self>;
 
@@ -37,7 +37,7 @@ pub trait QueryExtensions: EntityTrait {
 
 /// 软删除扩展 Trait
 #[async_trait]
-pub trait SoftDeleteExt: EntityTrait {
+pub trait SoftDeleteExt: sea_orm::EntityTrait {
     /// 软删除单个记录
     async fn soft_delete<C>(db: &C, id: &str) -> Result<(), sea_orm::DbErr>
     where
@@ -52,9 +52,9 @@ pub trait SoftDeleteExt: EntityTrait {
     fn batch_update() -> sea_orm::UpdateMany<Self>;
 
     /// 批量新增
-    async fn batch_insert_many<C>(db: &C, active_models: Vec<Self::ActiveModel>) -> Result<InsertResult<Self::ActiveModel>, DbErr>
+    fn batch_insert_many<I>(models: I) -> sea_orm::Insert<Self::ActiveModel>
     where
-        C: sea_orm::ConnectionTrait;
+        I: IntoIterator<Item = Self::ActiveModel>;
 }
 
 /// 自动字段上下文结构
