@@ -361,7 +361,9 @@ where
 
     async fn execute(&self, stmt: Statement) -> Result<ExecResult, DbErr> {
         let sql = stmt.to_string();
+        log::info!("Executing SQL: {}", sql);
         if let Some(modified_sql) = self.hook.before_query(&sql)? {
+            log::info!("Modified SQL: {}", modified_sql);
             let modified_stmt = Statement::from_string(
                 self.get_database_backend(),
                 &modified_sql,
@@ -377,7 +379,9 @@ where
     }
 
     async fn execute_unprepared(&self, sql: &str) -> Result<ExecResult, DbErr> {
+        log::info!("Executing unprepared SQL: {}", sql);
         if let Some(modified_sql) = self.hook.before_query(sql)? {
+            log::info!("Modified SQL: {}", modified_sql);
             let result = self.inner.execute_unprepared(&modified_sql).await;
             self.hook.after_query(&modified_sql, &result.as_ref().map(|_| ()));
             result
