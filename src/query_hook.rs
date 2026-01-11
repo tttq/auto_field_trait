@@ -104,7 +104,7 @@ impl DefaultQueryHook {
                     // 从第一个表中提取表名
                     if let sqlparser::ast::TableFactor::Table { name, .. } = &select.from[0].relation {
                         if let Some(last_ident) = name.0.last() {
-                            let table_name = last_ident.value.to_lowercase();
+                            let table_name = last_ident.to_string().to_lowercase();
                             if !table_name.is_empty() {
                                 return Some(table_name);
                             }
@@ -163,7 +163,7 @@ impl DefaultQueryHook {
             sqlparser::ast::SelectItem::ExprWithAlias { expr, .. } | sqlparser::ast::SelectItem::UnnamedExpr(expr) => {
                 if let sqlparser::ast::Expr::Function(func) = expr {
                     // 检查函数名是否为 COUNT
-                    if func.name.0.last().map_or(false, |ident| ident.value.eq_ignore_ascii_case("COUNT")) {
+                    if func.name.0.last().map_or(false, |ident| ident.to_string().eq_ignore_ascii_case("COUNT")) {
                         // 检查是否包含 COUNT(*) 或 COUNT(1)
                         // 简化检查，不依赖 FunctionArguments 的内部结构
                         let func_str = func.to_string();
@@ -205,7 +205,7 @@ impl DefaultQueryHook {
             sqlparser::ast::TableFactor::Table { alias, .. } => {
                 // 仅提取表别名，没有别名时返回None
                 if let Some(alias) = alias {
-                    return Some(alias.name.value.clone());
+                    return Some(alias.name.to_string());
                 }
                 None
             },
@@ -246,7 +246,7 @@ impl DefaultQueryHook {
             conditions.push(sqlparser::ast::Expr::BinaryOp {
                 left: Box::new(self.create_field_expr("delete_flag", table_alias_ref)),
                 op: sqlparser::ast::BinaryOperator::Eq,
-                right: Box::new(sqlparser::ast::Expr::Value(sqlparser::ast::Value::Number("0".to_string(), false))),
+                right: Box::new(sqlparser::ast::Expr::Value(sqlparser::ast::Value::Number("0".to_string(), false).with_empty_span())),
             });
         }
 
@@ -258,7 +258,7 @@ impl DefaultQueryHook {
                     conditions.push(sqlparser::ast::Expr::BinaryOp {
                         left: Box::new(self.create_field_expr("tenant_id", table_alias_ref)),
                         op: sqlparser::ast::BinaryOperator::Eq,
-                        right: Box::new(sqlparser::ast::Expr::Value(sqlparser::ast::Value::SingleQuotedString(tenant_id))),
+                        right: Box::new(sqlparser::ast::Expr::Value(sqlparser::ast::Value::SingleQuotedString(tenant_id).with_empty_span())),
                     });
                 }
             }

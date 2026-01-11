@@ -8,7 +8,7 @@ keywords = ["orm", "sql-database", "spring"]
 [dependencies]
 async-trait = "0.1.89"
 sea-orm ={version= "1.1.19", optional = true}
-sqlparser = "0.50"
+sqlparser = "0.60"
 regex = "1"
 lazy_static = "1"
 parking_lot = "0.12"
@@ -16,7 +16,7 @@ log = "0.4"
 
 # 添加spring-sea-orm所需的依赖
 schemars = "1.1.0"
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 spring = "0.4.7"
 spring-web = { version = "0.4.13", optional = true}
 thiserror = "2"
