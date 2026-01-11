@@ -346,7 +346,7 @@ impl<C> HookedConnection<C> {
     
     /// 从内部连接和全局钩子创建新的钩子连接
     pub fn new_with_global_hook(inner: C) -> Option<Self> {
-        get_query_hook().map(|hook| Self { inner, hook })
+        get_extract_hook().map(|hook| Self { inner, hook })
     }
 }
 
@@ -436,23 +436,23 @@ where
 }
 
 /// 全局查询钩子注册表
-static QUERY_HOOK_REGISTRY: parking_lot::RwLock<Option<Arc<dyn QueryHook>>> = parking_lot::RwLock::new(None);
+static EXTRACT_HOOK_REGISTRY: parking_lot::RwLock<Option<Arc<dyn QueryHook>>> = parking_lot::RwLock::new(None);
 
 /// 注册全局查询钩子
-pub fn register_query_hook(hook: Arc<dyn QueryHook>) {
-    let mut registry = QUERY_HOOK_REGISTRY.write();
+pub fn register_extract_hook(hook: Arc<dyn QueryHook>) {
+    let mut registry = EXTRACT_HOOK_REGISTRY.write();
     *registry = Some(hook);
 }
 
 /// 获取全局查询钩子
-pub fn get_query_hook() -> Option<Arc<dyn QueryHook>> {
-    let registry = QUERY_HOOK_REGISTRY.read();
+pub fn get_extract_hook() -> Option<Arc<dyn QueryHook>> {
+    let registry = EXTRACT_HOOK_REGISTRY.read();
     registry.clone()
 }
 
 /// 移除全局查询钩子
-pub fn unregister_query_hook() {
-    let mut registry = QUERY_HOOK_REGISTRY.write();
+pub fn unregister_extract_hook() {
+    let mut registry = EXTRACT_HOOK_REGISTRY.write();
     *registry = None;
 }
 

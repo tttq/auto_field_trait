@@ -35,9 +35,9 @@ pub trait QueryExtensions: sea_orm::EntityTrait {
     fn find_by_creator_name(user_name: &str) -> Select<Self>;
 }
 
-/// 软删除扩展 Trait
+/// 自定义扩展 Trait
 #[async_trait]
-pub trait SoftDeleteExt: sea_orm::EntityTrait {
+pub trait CustomizationExt: sea_orm::EntityTrait {
     /// 软删除单个记录
     async fn soft_delete<C>(db: &C, id: &str) -> Result<(), sea_orm::DbErr>
     where

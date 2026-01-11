@@ -1,12 +1,12 @@
 /// 自动字段处理库
 pub mod auto_field_trait;
-pub mod query_hook;
+pub mod extract_hook;
 pub mod config;
 pub mod pagination;
 
 use anyhow::Context;
 use config::SeaOrmConfig;
-use query_hook::{register_query_hook, DefaultQueryHook, HookedConnection};
+use extract_hook::{register_extract_hook, DefaultQueryHook, HookedConnection};
 use sea_orm::{ConnectOptions, Database};
 use spring::async_trait;
 use spring::config::ConfigRegistry;
@@ -35,7 +35,7 @@ impl Plugin for HookedSeaOrmPlugin {
         
         // 创建并注册默认查询钩子
         let default_hook = Arc::new(DefaultQueryHook::new());
-        register_query_hook(default_hook.clone());
+        register_extract_hook(default_hook.clone());
         
         // 将原始连接包装为HookedConnection
         let hooked_conn = HookedConnection::new(conn.clone(), default_hook);
@@ -74,5 +74,5 @@ impl HookedSeaOrmPlugin {
 
 
 // 重新导出核心类型和宏，方便用户使用
-pub use auto_field_trait::{register_context_getter, AutoFieldContext, ContextInfoProvider, QueryExtensions, SoftDeleteExt};
+pub use auto_field_trait::{register_context_getter, AutoFieldContext, ContextInfoProvider, QueryExtensions, CustomizationExt};
 pub use pagination::{Page, PageResult, Pagination, PaginationExt};
