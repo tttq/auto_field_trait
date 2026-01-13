@@ -32,11 +32,23 @@ impl Plugin for HookedSeaOrmPlugin {
         let conn = Self::connect(&config)
             .await
             .expect("sea-orm plugin load failed");
-        
+        let soft_delete = match config.enable_soft_delete {
+            Some(true) => true,
+            _ => false
+        };
+        let tenant_filter = match config.enable_tenant_filter {
+            Some(true) => true,
+            _ => false
+        };
         // 创建并注册默认查询钩子
-        let default_hook = Arc::new(DefaultQueryHook::new());
+        let default_hook = Arc::new(DefaultQueryHook::new(soft_delete,tenant_filter));
+        if let Some(tables) = &config.skip_table {
+            for table in tables {
+                log::info!("skip table:{}", table);
+                default_hook.add_skip_table(table);
+            }
+        }
         register_extract_hook(default_hook.clone());
-        
         // 将原始连接包装为HookedConnection
         let hooked_conn = HookedConnection::new(conn.clone(), default_hook);
         

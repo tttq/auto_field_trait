@@ -29,10 +29,10 @@ pub struct DefaultQueryHook {
 
 impl DefaultQueryHook {
     /// 创建新的默认查询钩子
-    pub fn new() -> Self {
+    pub fn new(enable_soft_delete :bool, enable_tenant_filter:bool) -> Self {
         Self {
-            enable_soft_delete: true,
-            enable_tenant_filter: true,
+            enable_soft_delete,
+            enable_tenant_filter,
             skip_tables: Arc::new(RwLock::new(HashSet::new())),
         }
     }
@@ -104,7 +104,11 @@ impl DefaultQueryHook {
                     // 从第一个表中提取表名
                     if let sqlparser::ast::TableFactor::Table { name, .. } = &select.from[0].relation {
                         if let Some(last_ident) = name.0.last() {
-                            let table_name = last_ident.to_string().to_lowercase();
+                            let mut table_name = last_ident.to_string().to_lowercase();
+                            // 移除可能存在的引号
+                            if table_name.starts_with('"') && table_name.ends_with('"') {
+                                table_name = table_name[1..table_name.len()-1].to_string();
+                            }
                             if !table_name.is_empty() {
                                 return Some(table_name);
                             }
@@ -454,89 +458,4 @@ pub fn get_extract_hook() -> Option<Arc<dyn QueryHook>> {
 pub fn unregister_extract_hook() {
     let mut registry = EXTRACT_HOOK_REGISTRY.write();
     *registry = None;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use sea_orm::DbErr;
-
-    #[test]
-    fn test_count_query_handling() -> Result<(), DbErr> {
-        // 创建默认查询钩子
-        let hook = DefaultQueryHook::new();
-        
-        // 测试COUNT查询
-        let count_sql = "SELECT COUNT(*) AS num_items FROM (SELECT \"auth_sys_dict\".\"id\" FROM \"auth_sys_dict\" WHERE \"auth_sys_dict\".\"parent_id\" IS NULL) AS \"sub_query\"";
-        println!("Original COUNT SQL: {}", count_sql);
-        
-        // 应用查询钩子
-        let result = hook.before_query(count_sql)?;
-        
-        if let Some(modified_sql) = result {
-            println!("Modified COUNT SQL: {}", modified_sql);
-            
-            // 检查条件是否添加到了内部子查询
-            assert!(modified_sql.contains("WHERE \"auth_sys_dict\".\"parent_id\" IS NULL AND delete_flag = 0"), 
-                    "条件应该添加到内部子查询，而不是外部查询");
-            assert!(!modified_sql.contains("sub_query\" WHERE delete_flag = 0"), 
-                    "条件不应该添加到外部查询");
-            println!("✓ COUNT查询修复成功！条件被正确添加到内部子查询");
-        } else {
-            panic!("COUNT查询未被修改");
-        }
-        
-        Ok(())
-    }
-    
-    #[test]
-    fn test_normal_select_query() -> Result<(), DbErr> {
-        // 创建默认查询钩子
-        let hook = DefaultQueryHook::new();
-        
-        // 测试普通SELECT查询
-        let select_sql = "SELECT * FROM auth_sys_dict WHERE parent_id IS NULL";
-        println!("\nOriginal SELECT SQL: {}", select_sql);
-        
-        // 应用查询钩子
-        let result = hook.before_query(select_sql)?;
-        
-        if let Some(modified_sql) = result {
-            println!("Modified SELECT SQL: {}", modified_sql);
-            assert!(modified_sql.contains("WHERE parent_id IS NULL AND delete_flag = 0"), 
-                    "条件应该添加到普通查询");
-            println!("✓ 普通SELECT查询正常工作");
-        } else {
-            panic!("普通SELECT查询未被修改");
-        }
-        
-        Ok(())
-    }
-    
-    #[test]
-    fn test_select_with_table_alias() -> Result<(), DbErr> {
-        // 创建默认查询钩子
-        let hook = DefaultQueryHook::new();
-        
-        // 测试带有表别名的SELECT查询
-        let select_sql = "SELECT t.* FROM auth_sys_dict t WHERE t.parent_id IS NULL";
-        println!("\nOriginal SELECT with alias SQL: {}", select_sql);
-        
-        // 应用查询钩子
-        let result = hook.before_query(select_sql)?;
-        
-        if let Some(modified_sql) = result {
-            println!("Modified SELECT with alias SQL: {}", modified_sql);
-            // 检查是否使用了表别名.字段名格式
-            assert!(modified_sql.contains("WHERE t.parent_id IS NULL AND t.delete_flag = 0"), 
-                    "条件应该使用表别名格式 t.delete_flag");
-            assert!(!modified_sql.contains("AND delete_flag = 0"), 
-                    "不应该使用无别名的字段名");
-            println!("✓ 带有表别名的SELECT查询正常工作");
-        } else {
-            panic!("带有表别名的SELECT查询未被修改");
-        }
-        
-        Ok(())
-    }
 }

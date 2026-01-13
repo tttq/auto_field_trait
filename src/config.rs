@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use spring::config::Configurable;
@@ -36,8 +37,21 @@ pub struct SeaOrmConfig {
 
     /// Set the timeout for acquiring a connection
     pub acquire_timeout: Option<u64>,
+    
+    /// 跳过表
+    pub skip_table: Option<HashSet<String>>,
+    /// 是否开启软删除
+    #[serde(default = "default_bool")]
+    pub enable_soft_delete: Option<bool>,
+    /// 是否开启多租户
+    #[serde(default = "default_bool")]
+    pub enable_tenant_filter: Option<bool>
+
 }
 
+fn default_bool() -> Option<bool> {
+    Some(false)
+}
 fn default_min_connections() -> u32 {
     1
 }
