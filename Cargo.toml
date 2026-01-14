@@ -6,27 +6,41 @@ categories = ["database"]
 keywords = ["orm", "sql-database", "spring"]
 
 [dependencies]
-async-trait = "0.1.89"
-sea-orm ={version= "1.1.19", optional = true}
-sqlparser = "0.60"
-regex = "1"
-lazy_static = "1"
-parking_lot = "0.12"
-log = "0.4"
+# 异步编程支持
+async-trait = "0.1.89"  # 用于生成异步 trait 实现的宏
 
-# 添加spring-sea-orm所需的依赖
-schemars = "1.1.0"
-serde = { version = "1.0.228", features = ["derive"] }
-spring = "0.4.7"
-spring-web = { version = "0.4.13", optional = true}
-thiserror = "2"
-anyhow = "1.0.79"
+# 数据库相关
+sea-orm = { version = "1.1.19", optional = true }  # SeaORM ORM 框架，可选依赖
+sqlparser = "0.60"  # SQL 解析库
+
+# 并发和同步
+parking_lot = "0.12"  # 高性能互斥锁和读写锁实现
+
+# 日志
+log = "0.4"  # 日志抽象库
+
+# Spring 框架集成
+spring = { version = "0.4.7" }      # Spring 核心框架
+spring-web = { version = "0.4.13", optional = true }  # Spring Web 框架，可选依赖
+
+# 序列化和反序列化
+serde = { version = "1.0.228", features = ["derive"] }  # 序列化框架
+schemars = "1.1.0"  # JSON Schema 生成库，用于 OpenAPI
+
+# 错误处理
+thiserror = "2"  # 声明式错误处理
+anyhow = "1.0.79"  # 任意错误类型处理
 
 # 特性定义
 [features]
+# 默认特性：启用 SeaORM 的 Tokio 运行时和原生 TLS 支持
 default = ["sea-orm/runtime-tokio-native-tls"]
-mysql = ["sea-orm/sqlx-mysql"]
-sqlite = ["sea-orm/sqlx-sqlite"]
-postgres = ["sea-orm/sqlx-postgres"]
-with-web = ["spring-web"]
-with-web-openapi = ["spring-web/openapi"]
+
+# 数据库驱动特性
+mysql = ["sea-orm/sqlx-mysql"]  # MySQL 数据库支持
+sqlite = ["sea-orm/sqlx-sqlite"]  # SQLite 数据库支持
+postgres = ["sea-orm/sqlx-postgres"]  # PostgreSQL 数据库支持
+
+# Web 相关特性
+with-web = ["spring-web"]  # 启用 Spring Web 支持
+with-web-openapi = ["spring-web/openapi"]  # 启用 Spring Web 的 OpenAPI 支持
