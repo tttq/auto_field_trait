@@ -21,7 +21,7 @@ log = "0.4"  # 日志抽象库
 
 # Spring 框架集成
 spring = { version = "0.4.7" }      # Spring 核心框架
-spring-web = { version = "0.4.13", optional = true }  # Spring Web 框架，可选依赖
+spring-web = { version = "0.4.12", optional = true }  # Spring Web 框架，可选依赖
 
 # 序列化和反序列化
 serde = { version = "1.0.228", features = ["derive"] }  # 序列化框架
