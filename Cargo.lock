@@ -218,7 +218,7 @@ checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
 name = "auto_field_trait"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2674,9 +2674,9 @@ dependencies = [
 
 [[package]]
 name = "spring"
-version = "0.4.7"
+version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0560cb71d917128c84b0f70fed6ccec6e49fdf6c543fff502a23ccea50543a83"
+checksum = "ef3fa1666472b4ec47de273ecf47af5e2b7cd238eb591a9e8fa5d85581ec5c4e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2685,7 +2685,6 @@ dependencies = [
  "inventory",
  "log",
  "nu-ansi-term",
- "once_cell",
  "schemars",
  "serde",
  "serde-toml-merge",
@@ -2713,17 +2712,19 @@ dependencies = [
 
 [[package]]
 name = "spring-web"
-version = "0.4.13"
+version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb6e6e26d5d9c9330f2c5e685a8e6798ccb58dd31cd617c0157448f1a23890c0"
+checksum = "93b71a2a0e343957942544dd67b45072976cf18cb99476c818ad70163a5719b2"
 dependencies = [
  "aide",
  "anyhow",
  "axum",
  "byte-unit",
+ "indexmap",
  "inventory",
  "schemars",
  "serde",
+ "serde_json",
  "spring",
  "spring-macros",
  "thiserror",
